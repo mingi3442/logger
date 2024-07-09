@@ -20,26 +20,61 @@ const (
   fatal
 )
 
+const (
+  colorReset   = "\033[0m"
+  colorWhite   = "\033[37m"
+  colorBlue    = "\033[34m"
+  colorGreen   = "\033[32m"
+  colorCyan    = "\033[36m"
+  colorYellow  = "\033[33m"
+  colorRed     = "\033[31m"
+  colorMagenta = "\033[35m"
+  colorBgRed   = "\033[41m"
+)
+
 func (l logLevel) colorLogLevel() string {
   switch l {
   case trace:
-    return "\033[37m[TRACE]\033[0m" // 흰색
+    return colorWhite + "[TRACE]" + colorReset
   case debug:
-    return "\033[34m[DEBUG]\033[0m" // 파란색
+    return colorBlue + "[DEBUG]" + colorReset
   case info:
-    return "\033[32m[INFO]\033[0m" // 녹색
+    return colorGreen + "[INFO]" + colorReset
   case notice:
-    return "\033[36m[NOTICE]\033[0m" // 청록색
+    return colorCyan + "[NOTICE]" + colorReset
   case warn:
-    return "\033[33m[WARN]\033[0m" // 노란색
+    return colorYellow + "[WARN]" + colorReset
   case error:
-    return "\033[31m[ERROR]\033[0m" // 빨간색
+    return colorRed + "[ERROR]" + colorReset
   case critical:
-    return "\033[35m[CRITICAL]\033[0m" // 자주색
+    return colorMagenta + "[CRITICAL]" + colorReset
   case fatal:
-    return "\033[41m[FATAL]\033[0m" // 빨간 배경
+    return colorBgRed + "[FATAL]" + colorReset
   default:
-    return "\033[37m[UNKNOWN]\033[0m" // 흰색
+    return colorWhite + "[UNKNOWN]" + colorReset
+  }
+}
+
+func (l logLevel) colorTimestamp() string {
+  switch l {
+  case trace:
+    return colorWhite
+  case debug:
+    return colorBlue
+  case info:
+    return colorGreen
+  case notice:
+    return colorCyan
+  case warn:
+    return colorYellow
+  case error:
+    return colorRed
+  case critical:
+    return colorMagenta
+  case fatal:
+    return colorBgRed
+  default:
+    return colorWhite
   }
 }
 
@@ -66,8 +101,8 @@ func logPrint(logChan <-chan LogMessage) {
 }
 
 func formatLogMessage(logMsg LogMessage) string {
-  // colorCode := logMsg.Level.Color()
-  return fmt.Sprintf("%s %s: %s%s", logMsg.Level.colorLogLevel(), time.Now().Format(time.RFC3339), logMsg.Message, "\033[0m")
+  timestamp := logMsg.Level.colorTimestamp() + time.Now().Format(time.RFC3339) + colorReset
+  return fmt.Sprintf("%s %s: %s", timestamp, logMsg.Level.colorLogLevel(), logMsg.Message)
 }
 
 func log(level logLevel, msg string) {
